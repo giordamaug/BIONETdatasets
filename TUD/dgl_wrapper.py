@@ -9,7 +9,6 @@ import shutil
 
 import torch
 import torch.nn.functional as F
-from models import Model
 from torch.utils.data import random_split
 from torch_geometric.data import DataLoader
 from torch_geometric.io import read_tu_data
