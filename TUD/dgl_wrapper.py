@@ -1,4 +1,3 @@
-import argparse
 import glob
 import os
 import time
@@ -60,14 +59,10 @@ class TUDataset(InMemoryDataset):
             contain only non-isomorphic graphs. (default: :obj:`False`)
     """
 
-    url = 'file:///Users/maurizio/Google Drive/Software/pytorchGeo/data/TUDataset'
-    cleaned_url = ('https://raw.githubusercontent.com/nd7141/'
-                   'graph_datasets/master/datasets')
-
-    def __init__(self, root, name, transform=None, pre_transform=None,
-                 pre_filter=None, use_node_attr=False, use_edge_attr=False,
-                 cleaned=False):
+    def __init__(self, url, root='.', name, transform=None, pre_transform=None,
+                 pre_filter=None, use_node_attr=False, use_edge_attr=False):
         self.name = name
+        self.url = url
         self.cleaned = cleaned
         super(TUDataset, self).__init__(root, transform, pre_transform,
                                         pre_filter)
@@ -130,7 +125,7 @@ class TUDataset(InMemoryDataset):
         return 'data.pt'
 
     def download(self):
-        url = self.cleaned_url if self.cleaned else self.url
+        url = self.url
         folder = osp.join(self.root, self.name)
         path = download_url('{}/{}.zip'.format(url, self.name), folder)
         extract_zip(path, folder)
