@@ -1,7 +1,6 @@
 import glob
 import os
 import shutil
-import sys
 from os import path as osp
 from urllib.error import URLError
 
@@ -120,7 +119,7 @@ class TUDataset(Dataset):
         # Edge features
         e_list = []
         if "edge_attributes" in available:
-            e_attr = io.load_txt(fname_template.format("edge_attributes"), delimiter=',')
+            e_attr = io.load_txt(fname_template.format("edge_attributes"))
             if e_attr.ndim == 1:
                 e_attr = e_attr[:, None]
             e_attr = e_attr[mask]
@@ -185,5 +184,3 @@ def _normalize(x, norm=None):
     else:
         return x
     return fnorm.fit_transform(x)
-
-import argparse
