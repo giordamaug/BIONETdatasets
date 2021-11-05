@@ -61,7 +61,6 @@ class TUDataset(InMemoryDataset):
                  pre_filter=None, use_node_attr=False, use_edge_attr=False):
         self.name = name
         self.url = url
-        self.cleaned = cleaned
         super(TUDataset, self).__init__(root, transform, pre_transform,
                                         pre_filter)
         self.data, self.slices = torch.load(self.processed_paths[0])
@@ -74,13 +73,10 @@ class TUDataset(InMemoryDataset):
 
     @property
     def raw_dir(self):
-        name = 'raw{}'.format('_cleaned' if self.cleaned else '')
-        return osp.join(self.root, self.name, name)
-
+        return osp.join(self.root, self.name, 'raw')
     @property
     def processed_dir(self):
-        name = 'processed{}'.format('_cleaned' if self.cleaned else '')
-        return osp.join(self.root, self.name, name)
+        return osp.join(self.root, self.name, 'processed')
 
     @property
     def num_node_labels(self):
