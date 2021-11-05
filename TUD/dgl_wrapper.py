@@ -1,3 +1,4 @@
+import argparse
 import glob
 import os
 import time
@@ -59,7 +60,7 @@ class TUDataset(InMemoryDataset):
             contain only non-isomorphic graphs. (default: :obj:`False`)
     """
 
-    def __init__(self, url, root='.', name, transform=None, pre_transform=None,
+    def __init__(self, url, name, root='.', transform=None, pre_transform=None,
                  pre_filter=None, use_node_attr=False, use_edge_attr=False):
         self.name = name
         self.url = url
