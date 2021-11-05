@@ -69,7 +69,7 @@ class TUDataset(DGLBuiltinDataset):
 
     def __init__(self, name, raw_dir=None, force_reload=False, verbose=False):
         url = self._url.format(name)
-        super(MyTUDataset, self).__init__(name=name, url=url,
+        super(TUDataset, self).__init__(name=name, url=url,
                                         raw_dir=raw_dir, force_reload=force_reload,
                                         verbose=verbose)
     
