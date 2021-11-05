@@ -19,8 +19,6 @@ class TUDataset(InMemoryDataset):
     r"""A variety of graph kernel benchmark datasets, *.e.g.* "IMDB-BINARY",
     "REDDIT-BINARY" or "PROTEINS", collected from the `TU Dortmund University
     <https://chrsmrrs.github.io/datasets>`_.
-    In addition, this dataset wrapper provides `cleaned dataset versions
-    <https://github.com/nd7141/graph_datasets>`_ as motivated by the
     `"Understanding Isomorphism Bias in Graph Data Sets"
     <https://arxiv.org/abs/1910.12091>`_ paper, containing only non-isomorphic
     graphs.
@@ -38,6 +36,7 @@ class TUDataset(InMemoryDataset):
         name (string): The `name
             <https://chrsmrrs.github.io/datasets/docs/datasets/>`_ of the
             dataset.
+        url (string): The url of the dataset for download.
         transform (callable, optional): A function/transform that takes in an
             :obj:`torch_geometric.data.Data` object and returns a transformed
             version. The data object will be transformed before every access.
@@ -56,8 +55,6 @@ class TUDataset(InMemoryDataset):
         use_edge_attr (bool, optional): If :obj:`True`, the dataset will
             contain additional continuous edge attributes (if present).
             (default: :obj:`False`)
-        cleaned: (bool, optional): If :obj:`True`, the dataset will
-            contain only non-isomorphic graphs. (default: :obj:`False`)
     """
 
     def __init__(self, name, url, root='.', transform=None, pre_transform=None,
