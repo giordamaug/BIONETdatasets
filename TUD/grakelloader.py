@@ -2,7 +2,7 @@ from __future__ import print_function
 import os
 import shutil
 import zipfile
-import ss
+import os
 import numpy as np
 from collections import Counter
 from sklearn.utils import Bunch
