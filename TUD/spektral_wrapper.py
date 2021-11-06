@@ -13,7 +13,7 @@ from spektral.datasets.utils import download_file
 from spektral.utils import io, sparse
 
 
-class TUDataset(Dataset):
+class MyTUDataset(Dataset):
     """
     The Benchmark Data Sets for Graph Kernels from TU Dortmund
     ([link](https://chrsmrrs.github.io/datasets/docs/datasets/)).
