@@ -6,13 +6,15 @@ import numpy as np
 
 class MyTUDataset(DGLBuiltinDataset):
     r"""
-    TUDataset contains lots of graph kernel datasets for graph classification.
+    MyTUDataset contains lots of graph kernel datasets for graph classification.
 
     Parameters
     ----------
     name : str
         Dataset Name, such as ``ENZYMES``, ``DD``, ``COLLAB``, ``MUTAG``, can be the 
         datasets name on `<https://chrsmrrs.github.io/datasets/docs/datasets/>`_.
+    path : str
+        Dataset directory path.
 
     Attributes
     ----------
@@ -28,42 +30,6 @@ class MyTUDataset(DGLBuiltinDataset):
     as per the original data.  Other frameworks such as PyTorch Geometric removes the
     duplicates by default.  You can remove the duplicate edges with :func:`dgl.to_simple`.
 
-    Examples
-    --------
-    >>> data = TUDataset('DD')
-
-    The dataset instance is an iterable
-
-    >>> len(data)
-    188
-    >>> g, label = data[1024]
-    >>> g
-    Graph(num_nodes=88, num_edges=410,
-          ndata_schemes={'_ID': Scheme(shape=(), dtype=torch.int64), 'node_labels': Scheme(shape=(1,), dtype=torch.int64)}
-          edata_schemes={'_ID': Scheme(shape=(), dtype=torch.int64)})
-    >>> label
-    tensor([1])
-
-    Batch the graphs and labels for mini-batch training
-
-    >>> graphs, labels = zip(*[data[i] for i in range(16)])
-    >>> batched_graphs = dgl.batch(graphs)
-    >>> batched_labels = torch.tensor(labels)
-    >>> batched_graphs
-    Graph(num_nodes=9539, num_edges=47382,
-          ndata_schemes={'node_labels': Scheme(shape=(1,), dtype=torch.int64), '_ID': Scheme(shape=(), dtype=torch.int64)}
-          edata_schemes={'_ID': Scheme(shape=(), dtype=torch.int64)})
-
-    Notes
-    -----
-    Graphs may have node labels, node attributes, edge labels, and edge attributes,
-    varing from different dataset.
-
-    Labels are mapped to :math:`\lbrace 0,\cdots,n-1 \rbrace` where :math:`n` is the
-    number of labels (some datasets have raw labels :math:`\lbrace -1, 1 \rbrace` which
-    will be mapped to :math:`\lbrace 0, 1 \rbrace`). In previous versions, the minimum
-    label was added so that :math:`\lbrace -1, 1 \rbrace` was mapped to
-    :math:`\lbrace 0, 2 \rbrace`.
     """
 
     def __init__(self, name, path, raw_dir=None, force_reload=False, verbose=False):
