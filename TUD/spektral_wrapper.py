@@ -119,7 +119,7 @@ class MyTUDataset(Dataset):
         # Edge features
         e_list = []
         if "edge_attributes" in available:
-            e_attr = io.load_txt(fname_template.format("edge_attributes"))
+            e_attr = io.load_txt(fname_template.format("edge_attributes"), delimiter=",")
             if e_attr.ndim == 1:
                 e_attr = e_attr[:, None]
             e_attr = e_attr[mask]
