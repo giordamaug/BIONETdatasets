@@ -70,7 +70,7 @@ What is it?
 |MUTAG  | 0.947  | 0.947   |    | 
 |KIDNEY  | 0.967  | 0.833   |    | 
 |PROTEINS| 0.732 | 0.714 |    | 
-|Mutagenicity    |    |   |    |
-|ogbg-molbbbp|   |    |    |
+|Mutagenicity    | 0.735 | 0.693 |    |
+|ogbg-molbbbp| 0.799 | 0.759 |    |
 |ogbg-molbace| 0.7628  | 0.790   |    |
 
