@@ -6,10 +6,10 @@ backgroundImage: url('https://marp.app/assets/hero-background.svg')
 
 <style>
 td {
-  font-size: 10px
+  font-size: 15px
 }
 th {
-  font-size: 10px
+  font-size: 15px
 }
 </style>
 
@@ -65,12 +65,25 @@ What is it?
   epochs 400, extractor: [1], min_count 2, prob_type ["ndd"], 
   vertex_attribute "label"
 
-|dataset| acc Trans.   | acc Induc. | elapsed |
-|---|----|----|----|
-|MUTAG  | 0.947  | 0.947   |    | 
-|KIDNEY  | 0.967  | 0.833   |    | 
-|PROTEINS| 0.732 | 0.714 |    | 
-|Mutagenicity    | 0.735 | 0.693 |    |
-|ogbg-molbbbp| 0.799 | 0.759 |    |
-|ogbg-molbace| 0.7628  | 0.790   |    |
+|dataset| acc Trans.   | acc Induc. | probs | agg_by | cut_off | dim | encodew | epochs | extr| min_count | v_label | 
+|---|----|----|----|----|----|----|----|----|----|----|----|
+|MUTAG  | 0.947  | 0.947   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | 
+|KIDNEY  | 0.967  | 0.833   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label |
+|PROTEINS| 0.732 | 0.714 |  ["ndd","tm1"] | [1,0] | [0,0] | 512 | :x: | 200 | [2,2] |  2 | label | 
+|Mutagenicity    | 0.735 | 0.693 | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | 
+|ogbg-molbbbp| 0.799 | 0.759 | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label |
+|ogbg-molbace| 0.7628  | 0.790   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | 
+---
 
+# Results: GRAPH2VEC
+
+-  one-random split: 90% train, 10% test
+
+|dataset| acc Trans.   | dim | epochs | wl |
+|---|----|---|---|---|
+|MUTAG  | 0.947  |  512  | 400 | 3 |
+|KIDNEY  |   |    | 
+|PROTEINS| 0.625 | 128  | 200 | 5 | 
+|Mutagenicity    |  |    |
+|ogbg-molbbbp|  |    |
+|ogbg-molbace|    |    |
