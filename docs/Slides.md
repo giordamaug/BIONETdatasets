@@ -79,11 +79,11 @@ What is it?
 
 -  one-random split: 90% train, 10% test
 
-|dataset| acc Trans.   | dim | epochs | wl |
-|---|----|---|---|---|
-|MUTAG  | 0.947  |  512  | 400 | 3 |
-|KIDNEY  |   |    | 
-|PROTEINS| 0.625 | 128  | 200 | 5 | 
-|Mutagenicity    |  |    |
-|ogbg-molbbbp|  |    |
-|ogbg-molbace|    |    |
+|dataset| acc Trans.   | dim | epochs | wl | elapsed|
+|---|----|---|---|---|----|
+|MUTAG  | 0.947  |  512  | 400 | 3 |   |
+|KIDNEY  | 0.566  |  128  | 200 | 3 |
+|PROTEINS| 0.625 | 128  | 200 | 5 |   |
+|Mutagenicity    | 0.719 | 128  | 200 | 3 | 1m15s |
+|ogbg-molbbbp| 0.848 |  128  | 200 | 3 | 24s |
+|ogbg-molbace| 0.717 |  128  | 200 | 3 | 23s |
