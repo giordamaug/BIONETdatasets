@@ -1,7 +1,3 @@
-import igraph as ig
-import numpy as np
-import os
-
 import os
 from typing import Iterator
 import networkx as nx
@@ -62,11 +58,11 @@ class MyTUDataset():
         graph_db = []
         gc = 1
         for i in (tqdm(node_indices, desc="Loading nodes:") if self.verbose else node_indices):
-            g = ig.Graph()
-            g['name'] = f'{self.name}_{gc}'
+            g = nx.Graph()
+            g.graph['name'] = f'{self.name}_{gc}'
             gc += 1
             for j in range(i[1] - i[0]+1):
-                g.add_vertex(j)
+                g.add_node(j)
 
             graph_db.append(g)
 
@@ -81,9 +77,9 @@ class MyTUDataset():
             g_id = graph_indicator[e[0]]
             g = graph_db[g_id]
             off = offset[g_id]
-            edgesn = [(e.source, e.target) for e in g.es]
+
             # Avoid multigraph (for edge_list)
-            if ((e[0] - off, e[1] - off) not in edgesn) and ((e[1] - off, e[0] - off) not in edgesn):
+            if ((e[0] - off, e[1] - off) not in list(g.edges())) and ((e[1] - off, e[0] - off) not in list(g.edges())):
                 g.add_edge(e[0] - off, e[1] - off)
                 edge_list.append((e[0] - off, e[1] - off))
                 edgeb_list.append(True)
@@ -105,16 +101,16 @@ class MyTUDataset():
             
             i = 0
             for g in graph_db:
-                for v in g.vs:
-                    v['label'] = int(node_labels[i])
+                for v in range(g.number_of_nodes()):
+                    g.nodes[v]['label'] = int(node_labels[i])
                     i += 1
         else:
             if self.use_deg_label:
                 print("Calculating node labels as degree...") if self.verbose else None
                 i = 0
                 for g in graph_db:
-                    for v in g.vs:
-                        v['label'] = g.degree(v)
+                    for v in range(g.number_of_nodes()):
+                        g.nodes[v]['label'] = g.degree(v)
                         i += 1
 
         # Node Attributes.
@@ -132,8 +128,8 @@ class MyTUDataset():
             #if len(maxLength) > 0:
             i = 0
             for g in graph_db:
-                for v in g.vs:
-                    v['attributes'] = float_attributes[i]
+                for v in range(g.number_of_nodes()):
+                    g.nodes[v]['attributes'] = float_attributes[i]
                     i += 1
         # Edge Labels.
         if os.path.exists(os.path.join(self.path, self.name + "_edge_labels.txt")):
@@ -150,8 +146,8 @@ class MyTUDataset():
             
             i = 0
             for g in graph_db:
-                for e in g.es:
-                    e['label'] = int(edge_labels[i])
+                for e in range(g.number_of_edges()):
+                    g.edges[edge_list[i]]['label'] = int(edge_labels[i])
                     i += 1
 
         # Edge Attributes.
@@ -169,8 +165,8 @@ class MyTUDataset():
             
             i = 0
             for g in graph_db:
-                for e in g.es:
-                    e['attributes'] = e_attributes[i]
+                for e in range(g.number_of_edges()):
+                    g.edges[edge_list[i]]['attributes'] = e_attributes[i]
                     i += 1
 
         # Classes.
@@ -179,9 +175,13 @@ class MyTUDataset():
             with open(os.path.join(self.path, self.name + "_graph_labels.txt"), "r") as f:
                 classes = [str.strip(i) for i in list(f)]
             f.closed
+            #classes = [i.split(',') for i in classes]
+            #cs = [];
+            #for i in range(len(classes)):
+            #    cs.append([int(j) for j in classes[i]])        
             i = 0
             for g in graph_db:
-                g['class'] = int(classes[i])
+                g.graph['class'] = int(classes[i])
                 i += 1
 
         # Targets.
@@ -198,13 +198,12 @@ class MyTUDataset():
             
             i = 0
             for g in graph_db:
-                g['attributes'] = ts[i]
+                g.graph['attributes'] = ts[i]
                 i += 1
         # Generate label file
         labels = []
         for g in graph_db:
-            labels.append(g['class'])
+            labels.append(g.graph['class'])
         self.graph_list = graph_db
         self.graph_labels = labels
         return self
-        
