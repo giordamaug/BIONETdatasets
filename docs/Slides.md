@@ -87,3 +87,9 @@ What is it?
 |Mutagenicity    | 0.719 | 128  | 200 | 3 | 1m15s |
 |ogbg-molbbbp| 0.848 |  128  | 200 | 3 | 24s |
 |ogbg-molbace| 0.717 |  128  | 200 | 3 | 23s |
+
+---
+
+# Results
+
+![width:180px height:30cm](img/results.png)
