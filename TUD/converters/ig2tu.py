@@ -90,5 +90,5 @@ def ig2tu(dataname, graphs, labels, up_to = None, out_dir = '.', base=1, iszippe
     if has_edge_attr: f7.close()
     if has_graph_attr: f8.close()
     if iszipped:
-        shutil.make_archive(os.path.join(out_dir,dataname), 'zip', dirpath)
+        shutil.make_archive(os.path.join(out_dir,dataname), 'zip', root_dir=out_dir, base_dir=dataname)
 
