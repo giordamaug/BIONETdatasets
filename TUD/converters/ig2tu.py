@@ -15,7 +15,11 @@ def ig2tu(dataname, graphs, labels, up_to = None, out_dir = '.', base=1, iszippe
     has_edge_label = True if 'label' in edge_attr else False
     has_graph_attr = True if graph_attr is not None and graph_attr in graphs[0].attributes() else False
     for attr in remove_vertex_attr: 
-      vertex_attr.remove(attr)
+      if attr in vertex_attr:
+        vertex_attr.remove(attr)
+    for attr in remove_edge_attr : 
+      if attr in edge_attr:
+        edge_attr.remove(attr)
     if not vertex_label_as_attr and 'label' in vertex_attr: vertex_attr.remove('label')
     if not edge_label_as_attr and 'label' in edge_attr: edge_attr.remove('label')
     has_vertex_attr = True if len(vertex_attr) > 0 else False
