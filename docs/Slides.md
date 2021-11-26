@@ -18,7 +18,7 @@ th {
 What is it?
 - A repository of biological datasets in TUD format
 - A set of python wrappers 
-    + for using graphs in TUD format within the more popular graph deep learning linraries: DGL, PyTorch, Spektral, Grakel
+    + for using graphs in TUD format within the most popular graph deep learning linraries: DGL, PyTorch, Spektral, Grakel
 - Publicly available at: [Github](https://github.com/giordamaug/BIONETdatasets)
 
 
@@ -61,18 +61,17 @@ What is it?
 # Results: NETPRO2VEC
 
 -  one-random split: 90% train, 10% test
-- agg_by [1], cut_of [0.1], dimensions 512, encodew False, 
-  epochs 400, extractor: [1], min_count 2, prob_type ["ndd"], 
-  vertex_attribute "label"
 
-|dataset| acc Trans.   | acc Induc. | probs | agg_by | cut_off | dim | encodew | epochs | extr| min_count | v_label | 
-|---|----|----|----|----|----|----|----|----|----|----|----|
-|MUTAG  | 0.947  | 0.947   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | 
-|KIDNEY  | 0.967  | 0.833   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label |
-|PROTEINS| 0.732 | 0.714 |  ["ndd","tm1"] | [1,0] | [0,0] | 512 | :x: | 200 | [2,2] |  2 | label | 
-|Mutagenicity    | 0.735 | 0.693 | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | 
-|ogbg-molbbbp| 0.799 | 0.759 | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label |
-|ogbg-molbace| 0.7628  | 0.790   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | 
+|dataset| acc Trans.   | acc Induc. | probs | agg_by | cut_off | dim | encodew | epochs | extr| min_count | v_label | elapsed |
+|---|----|----|----|----|----|----|----|----|----|----|----|---|
+|MUTAG  | 0.947  | 0.947   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | |
+|PROTEINS| 0.732 | 0.714 |  ["ndd","tm1"] | [1,0] | [0,0] | 512 | :x: | 200 | [2,2] |  2 | label | |
+|Mutagenicity    | 0.735 | 0.693 | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | |
+|ogbg-molbbbp| 0.799 | 0.759 | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label ||
+|ogbg-molbace| 0.7628  | 0.790   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label | |
+|KIDNEY  | 0.967  | 0.833   | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label ||
+|BRAIN  | 0.928  | 0.900 | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label ||
+
 ---
 
 # Results: GRAPH2VEC
@@ -82,14 +81,14 @@ What is it?
 |dataset| acc Trans.   | dim | epochs | wl | elapsed|
 |---|----|---|---|---|----|
 |MUTAG  | 0.947  |  512  | 400 | 3 |   |
-|KIDNEY  | 0.566  |  128  | 200 | 3 |
 |PROTEINS| 0.625 | 128  | 200 | 5 |   |
 |Mutagenicity    | 0.719 | 128  | 200 | 3 | 1m15s |
 |ogbg-molbbbp| 0.848 |  128  | 200 | 3 | 24s |
 |ogbg-molbace| 0.717 |  128  | 200 | 3 | 23s |
+|KIDNEY  | 0.566  |  128  | 200 | 3 |
 
 ---
 
 # Results
 
-![width:180px height:30cm](img/results.png)
+![width:880px height:400px](img/results.png)
