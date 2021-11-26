@@ -1,0 +1,16 @@
+# remove extension in directory of files
+for file in "$path"/*; do
+    [ -f "$file" ] || continue
+    mv "$file" "${file%.*}"
+done
+
+# remove prefix in directory of files
+for file in prefix*;
+do
+    mv "$file" "${file#prefix}"
+done
+
+for file in *;
+do
+	mv "$f" "${f/pattern/}"
+done
