@@ -106,7 +106,7 @@ class Netwld2v:
         elif self.annotation == "degree":
             for gidx,graph in enumerate(graphs):
                 for v in ig.VertexSeq(graph):
-                    v["feature"]= ig.strength(v)
+                    v["feature"]= graph.strength(v)
         else:
             raise Exception("Wrong distribution selection %s"%self.annotation)
         
