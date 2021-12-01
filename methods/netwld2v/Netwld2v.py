@@ -103,6 +103,10 @@ class Netwld2v:
             for gidx,graph in enumerate(graphs):
                 for v in ig.VertexSeq(graph):
                     v["feature"]= np.argmax(self.probmats[gidx][v.index],axis=0)+1
+        elif self.annotation == "degree":
+            for gidx,graph in enumerate(graphs):
+                for v in ig.VertexSeq(graph):
+                    v["feature"]= ig.strength(v)
         else:
             raise Exception("Wrong distribution selection %s"%self.annotation)
         
