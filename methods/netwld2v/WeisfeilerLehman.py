@@ -32,7 +32,7 @@ class WeisfeilerLehman(object):
         self._do_recursions()
 
     def __get_vertex_attributes(self):
-        if self.vertex_attribute is None:     # if no attribute is specifyed, use the index as vertex label 
+        if self.vertex_attribute is None:     # if no attribute is specified, use the index as vertex label 
            return [v.index for v in ig.VertexSeq(self.graph)]
         elif self.vertex_attribute in self.graph.vs.attributes():
            return [v[self.vertex_attribute] for v in ig.VertexSeq(self.graph)]
@@ -48,7 +48,7 @@ class WeisfeilerLehman(object):
         for v in ig.VertexSeq(self.graph):
             v["feature"] = str(self.vertex_attribute_list[v.index]) + '_' + str(v["feature"])
             self.extracted_features += [v["feature"]]
-        #print("INIT", self.extracted_features)
+        print("INIT", self.extracted_features)
 
     def _do_a_recursion(self):
         """
@@ -63,12 +63,12 @@ class WeisfeilerLehman(object):
             degs = [neb["feature"] for neb in self.graph.vs[nebs]]
             features = [str(node["feature"])]+sorted([str(deg) for deg in degs])
             features = "-".join(features)
-            hash_object = hashlib.md5(features.encode())
-            hashing = hash_object.hexdigest()
-            node["feature"] = hashing
-            new_features[node.index] = hashing
-            #node["feature"] = features           # NO HASHING (memory exceeding!!!)
-            #new_features[node.index] = features   # NO HASHING (memory exceeding!!!)
+            #hash_object = hashlib.md5(features.encode())
+            #hashing = hash_object.hexdigest()
+            #node["feature"] = hashing
+            #new_features[node.index] = hashing
+            node["feature"] = features           # NO HASHING (memory exceeding!!!)
+            new_features[node.index] = features   # NO HASHING (memory exceeding!!!)
         #self.extracted_features = [ (self.vertex_attribute_list[k], str(v)) for k,v in new_features.items() ]
         self.extracted_features = [ str(v) for k,v in new_features.items() ]
         return self.extracted_features

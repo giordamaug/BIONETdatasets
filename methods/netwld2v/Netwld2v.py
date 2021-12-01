@@ -34,7 +34,7 @@ class Netwld2v:
         learning_rate (float): HogWild! learning rate. Default is 0.025.
         min_count (int): Minimal count of graph feature occurences. Default is 5.
         seed (int): Random seed for the model. Default is 42.
-        annotation (str): type of node (annotation) label used to build documents (default is node degree)
+        annotation (str): type of node (annotation) label used to build self.documents (default is node degree)
     """
     def __init__(self, wl_iterations: int=5, vertex_attribute=None, dimensions: int=128, annotation: str="degree",
                  workers: int=4, down_sampling: float=0.0001, epochs: int=10, 
@@ -106,7 +106,7 @@ class Netwld2v:
         elif self.annotation == "degree":
             for gidx,graph in enumerate(graphs):
                 for v in ig.VertexSeq(graph):
-                    v["feature"]= graph.strength(v)
+                    v["feature"]= int(graph.strength(v))
         else:
             raise Exception("Wrong distribution selection %s"%self.annotation)
         
@@ -122,35 +122,35 @@ class Netwld2v:
             try:
                 utils.vprint("Loading vocabulary...", end='\n', verbose=self.verbose)
                 infile = open(self.vocabfile,'rb')
-                documents = pk.load(infile)
+                self.documents = pk.load(infile)
                 infile.close()
             except Exception as e:
                 utils.vprint("Cannot load vocabulary...%s"%e, end='\n', verbose=self.verbose)
                 utils.vprint("...Let's generate it by scratch!", end='\n', verbose=self.verbose)
                 self.__set_features(graphs, self.annotation)
                 utils.vprint("WL algorithm (depth %d)..."%self.wl_iterations, end='\n', verbose=self.verbose)
-                documents = [WeisfeilerLehman(graph, self.wl_iterations, self.vertex_attribute, self.annotation, self.verbose) for graph in self.tqdm(graphs)]
+                self.documents = [WeisfeilerLehman(graph, self.wl_iterations, self.vertex_attribute, self.annotation, self.verbose) for graph in self.tqdm(graphs)]
                 utils.vprint("Building vocabulary...", end='\n', verbose=self.verbose)
-                documents = [TaggedDocument(words=doc.get_graph_features(), tags=[str(i)]) for i, doc in enumerate(self.tqdm(documents))]
+                self.documents = [TaggedDocument(words=doc.get_graph_features(), tags=[str(i)]) for i, doc in enumerate(self.tqdm(self.documents))]
         else:
             self.__set_features(graphs, self.annotation)
             utils.vprint("WL algorithm (depth %d)..."%self.wl_iterations, end='\n', verbose=self.verbose)
-            documents = [WeisfeilerLehman(graph, self.wl_iterations, self.vertex_attribute, self.annotation, self.verbose) for graph in self.tqdm(graphs)]
+            self.documents = [WeisfeilerLehman(graph, self.wl_iterations, self.vertex_attribute, self.annotation, self.verbose) for graph in self.tqdm(graphs)]
             utils.vprint("Building vocabulary...", end='\n', verbose=self.verbose)
-            documents = [TaggedDocument(words=doc.get_graph_features(), tags=[str(i)]) for i, doc in enumerate(self.tqdm(documents))]
+            self.documents = [TaggedDocument(words=doc.get_graph_features(), tags=[str(i)]) for i, doc in enumerate(self.tqdm(self.documents))]
         if self.savevocab:
             try:
                 utils.vprint("Saving vocabulary...", end='\n', verbose=self.verbose)
                 outfile = open(self.vocabfile,'wb')
-                pk.dump(documents, outfile)
+                pk.dump(self.documents, outfile)
                 outfile.close()
             except Exception as e:
                 raise Exception("Cannot save vocabulary...",e, e.args)
 
         utils.vprint("Building model...(epochs %d, sampling %f)"%(self.epochs,self.down_sampling), end='\n', verbose=self.verbose)
-        model = Doc2Vec(documents,
+        model = Doc2Vec(self.documents,
                         vector_size=self.dimensions,
-                        window=1,
+                        window=0,
                         min_count=self.min_count,
                         dm=0,
                         sample=self.down_sampling,
@@ -159,7 +159,7 @@ class Netwld2v:
                         alpha=self.learning_rate,
                         seed=self.seed)
 
-        self._embedding = [model.docvecs[str(i)] for i, _ in enumerate(documents)]
+        self._embedding = [model.docvecs[str(i)] for i, _ in enumerate(self.documents)]
 
 
     def get_embedding(self) -> np.array:
@@ -169,3 +169,11 @@ class Netwld2v:
             * **embedding** *(Numpy array)* - The embedding of graphs.
         """
         return np.array(self._embedding)
+
+    def get_documents(self):
+        r"""Getting the embedding of graphs.
+
+        Return types:
+            * **embedding** *(Numpy array)* - The embedding of graphs.
+        """
+        return self.documents
