@@ -89,6 +89,21 @@ What is it?
 
 ---
 
+# Results: WLPROB2VEC
+
+-  10-fold CV: 90% train, 10% test
+
+|dataset| acc trans.   | acc trans.   | prob | dim | epochs | wl | encodew | elapsed|
+|---|----|---|---|---|----|---|---|--|
+|MUTAG  | 84.01 |     |   |   |   |
+|PROTEINS|   |    |   |   |   |
+|Mutagenicity    |   |    |   |    |  |
+|ogbg-molbbbp|   |    |  |  |  |
+|ogbg-molbace|   |    |  |  |  |
+|KIDNEY  | 82.95  | 89.31 |  tm1 | 128  | 100 | 3 | :heavy_check_mark: | 27m |
+
+---
+
 # Results
 
 ![width:880px height:400px](img/results.png)

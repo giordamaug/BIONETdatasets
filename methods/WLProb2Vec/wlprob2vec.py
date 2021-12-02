@@ -2,20 +2,18 @@ import numpy as np
 import igraph as ig
 from typing import List
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-from netwld2v.WeisfeilerLehman import WeisfeilerLehman
+from gensim import __version__ as gensimversion
+from .WeisfeilerLehmanExt import WeisfeilerLehmanExt
 from netpro2vec.DistributionGenerator import DistributionGenerator
 import netpro2vec.utils as utils
 import re
+import random
 from tqdm import tqdm
 import pickle as pk
 import os
-import functools
-import time
 
 
-
-
-class Netwld2v:
+class wlprob2vec:
     r"""An implementation of whiolegraph emebdding based on doc2vec and WL algorithm
     The procedure creates Weisfeiler-Lehman tree features for nodes in graphs. Using
     these features a document (graph) - feature co-occurence matrix is decomposed in order
@@ -36,18 +34,19 @@ class Netwld2v:
         seed (int): Random seed for the model. Default is 42.
         annotation (str): type of node (annotation) label used to build self.documents (default is node degree)
     """
-    def __init__(self, wl_iterations: int=5, vertex_attribute=None, dimensions: int=128, annotation: str="degree",
-                 workers: int=4, down_sampling: float=0.0001, epochs: int=10, 
+    def __init__(self, wl_iterations: int=5, vertex_label=None, dimensions: int=128, annotation: str="degree",
+                 encodew=False, workers: int=4, down_sampling: float=0.0001, epochs: int=10, 
                  learning_rate: float=0.025, min_count: int=5, seed: int=42,
                  verbose=False, save_probs=False, load_probs=False, save_vocab=False, load_vocab=False):
 
         self.wl_iterations = wl_iterations
         assert self.wl_iterations >= 0, "WL recursions must be > 0"
         self.verbose = verbose
+        self.encodew = encodew
         self.tqdm = tqdm if self.verbose else utils.nop
         self.dimensions = dimensions
         assert self.dimensions > 0, "WL recursions must be > 0"
-        self.vertex_attribute = vertex_attribute
+        self.vertex_label = vertex_label
         self.annotation = annotation
         self.workers = workers
         self.down_sampling = down_sampling
@@ -65,6 +64,12 @@ class Netwld2v:
             os.makedirs('.np2vec')
         self.probmatfile = os.path.join('.np2vec','probmats.pkl')
         self.vocabfile = os.path.join('.np2vec','vocab.pkl')
+        self.model = None
+
+    def _set_seed(self):
+        """Creating the initial random seed."""
+        random.seed(self.seed)
+        np.random.seed(self.seed)
 
     def __check_graphs(self, graphs):
         """Checking the consecutive numeric indexing."""
@@ -98,15 +103,19 @@ class Netwld2v:
         if self.annotation == "ndd":
             for gidx,graph in enumerate(graphs):
                 for v in ig.VertexSeq(graph):
-                    v["feature"]= np.argmax(self.probmats[gidx][v.index])+1
+                    v["feature"] = np.argmax(self.probmats[gidx][v.index])+1
         elif self.matcher.match(self.annotation):   # match any 'tm<int>'
             for gidx,graph in enumerate(graphs):
                 for v in ig.VertexSeq(graph):
-                    v["feature"]= np.argmax(self.probmats[gidx][v.index],axis=0)+1
+                    v["feature"] = np.argmax(self.probmats[gidx][v.index],axis=0)+1
         elif self.annotation == "degree":
             for gidx,graph in enumerate(graphs):
                 for v in ig.VertexSeq(graph):
-                    v["feature"]= int(graph.strength(v))
+                    v["feature"] = int(graph.strength(v))
+        elif self.annotation == "betweenness":
+            for gidx,graph in enumerate(graphs):
+                for v in ig.VertexSeq(graph):
+                    v["feature"] = int(graph.betweenness(vertices=v, directed=self.isDirected))
         else:
             raise Exception("Wrong distribution selection %s"%self.annotation)
         
@@ -117,7 +126,9 @@ class Netwld2v:
         Arg types:
             * **graphs** *(List of igraph graphs)* - The graphs to be embedded.
         """
+        self._set_seed()
         self.__check_graphs(graphs)    # check graphs conditions
+        self.isDirected = graphs[0].is_directed()
         if self.loadvocab:
             try:
                 utils.vprint("Loading vocabulary...", end='\n', verbose=self.verbose)
@@ -129,13 +140,13 @@ class Netwld2v:
                 utils.vprint("...Let's generate it by scratch!", end='\n', verbose=self.verbose)
                 self.__set_features(graphs, self.annotation)
                 utils.vprint("WL algorithm (depth %d)..."%self.wl_iterations, end='\n', verbose=self.verbose)
-                self.documents = [WeisfeilerLehman(graph, self.wl_iterations, self.vertex_attribute, self.annotation, self.verbose) for graph in self.tqdm(graphs)]
+                self.documents = [WeisfeilerLehmanExt(graph, wl_iterations=self.wl_iterations, vertex_label=self.vertex_label, vertex_attribute='feature', verbose=self.verbose, encodew=self.encodew) for graph in self.tqdm(graphs)]
                 utils.vprint("Building vocabulary...", end='\n', verbose=self.verbose)
                 self.documents = [TaggedDocument(words=doc.get_graph_features(), tags=[str(i)]) for i, doc in enumerate(self.tqdm(self.documents))]
         else:
             self.__set_features(graphs, self.annotation)
             utils.vprint("WL algorithm (depth %d)..."%self.wl_iterations, end='\n', verbose=self.verbose)
-            self.documents = [WeisfeilerLehman(graph, self.wl_iterations, self.vertex_attribute, self.annotation, self.verbose) for graph in self.tqdm(graphs)]
+            self.documents = [WeisfeilerLehmanExt(graph, wl_iterations=self.wl_iterations, vertex_label=self.vertex_label, vertex_attribute='feature', verbose=self.verbose, encodew=self.encodew) for graph in self.tqdm(graphs)]
             utils.vprint("Building vocabulary...", end='\n', verbose=self.verbose)
             self.documents = [TaggedDocument(words=doc.get_graph_features(), tags=[str(i)]) for i, doc in enumerate(self.tqdm(self.documents))]
         if self.savevocab:
@@ -159,7 +170,40 @@ class Netwld2v:
                         alpha=self.learning_rate,
                         seed=self.seed)
 
-        self._embedding = [model.docvecs[str(i)] for i, _ in enumerate(self.documents)]
+        self.model = model
+        if gensimversion >= "4":
+            self._embedding = model.docvecs.vectors
+        else:
+            self._embedding = model.docvecs.doctag_syn0
+        #self._embedding = [model.docvecs[str(i)] for i, _ in enumerate(self.documents)]
+        return self
+
+    def infer_vector(self, graphs: List[ig.Graph]):
+        """
+        Inferring embedding from Graph2Vec model.
+
+        Arg types:
+            * **graphs** *(List of iGraph graphs)* - The graphs to be embedded.
+        """
+        if self.model is  None:
+            raise Exception("model is empty... please fit it before inferring!")
+        self._set_seed()
+        self.__check_graphs(graphs)
+        documents = [
+            WeisfeilerLehmanExt(graph, wl_iterations=self.wl_iterations, 
+               vertex_label=self.vertex_label, vertex_attribute='feature', verbose=self.verbose, encodew=self.encodew)
+            for graph in graphs
+        ]
+        documents = [
+            TaggedDocument(words=doc.get_graph_features(), tags=[str(i)])
+            for i, doc in enumerate(documents)
+        ]
+        documents = [d.words for d in documents]
+        if gensimversion >= "4":
+            embedding_list = [self.model.infer_vector(doc,steps=0,alpha=self.learning_rate) for doc in documents]
+        else:
+            embedding_list = [self.model.infer_vector(doc,epochs=0,alpha=self.learning_rate) for doc in documents]
+        return embedding_list
 
 
     def get_embedding(self) -> np.array:
