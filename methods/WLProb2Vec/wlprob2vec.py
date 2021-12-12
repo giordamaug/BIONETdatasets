@@ -25,6 +25,7 @@ class wlprob2vec:
 
     Args:
         wl_iterations (int): Number of Weisfeiler-Lehman iterations. Default is 2.
+        vertex_label (str or None): vertex label to be used as first labels in WL
         dimensions (int): Dimensionality of embedding. Default is 128.
         workers (int): Number of cores. Default is 4.
         down_sampling (float): Down sampling frequency. Default is 0.0001.
@@ -189,6 +190,7 @@ class wlprob2vec:
             raise Exception("model is empty... please fit it before inferring!")
         self._set_seed()
         self.__check_graphs(graphs)
+        self.__set_features(graphs, self.annotation)
         documents = [
             WeisfeilerLehmanExt(graph, wl_iterations=self.wl_iterations, 
                vertex_label=self.vertex_label, vertex_attribute='feature', verbose=self.verbose, encodew=self.encodew)
@@ -200,9 +202,9 @@ class wlprob2vec:
         ]
         documents = [d.words for d in documents]
         if gensimversion >= "4":
-            embedding_list = [self.model.infer_vector(doc,steps=0,alpha=self.learning_rate) for doc in documents]
-        else:
             embedding_list = [self.model.infer_vector(doc,epochs=0,alpha=self.learning_rate) for doc in documents]
+        else:
+            embedding_list = [self.model.infer_vector(doc,steps=0,alpha=self.learning_rate) for doc in documents]
         return embedding_list
 
 

@@ -73,6 +73,21 @@ What is it?
 |BRAIN  | 0.928  | 0.900 | ["ndd"] | [1] | [0.1] | 512 | :x: | 400 | [2,2] |  1 | label ||
 
 ---
+# Results: WLPROB2VEC
+
+-  10-fold CV: 90% train, 10% test
+
+| dataset | acc trans.   | acc ind.   | prob | dim | epochs | wl | encodew | elapsed |
+|---|---|---|---|---|---|---|---|---|
+|MUTAG  | 0.861 | 0.825 | tm1 | 128  | 100 | 4 | :heavy_check_mark: | 11s |
+|PROTEINS| 0.671 | 0.683 | tm1 | 128  | 100 | 4 | :heavy_check_mark: | 1m41s`` |
+|Mutagenicity    | 0.71 | 0.684 | ndd | 128  | 100 | 4 | :heavy_check_mark: |  |
+|ogbg-molbbbp| 0.8573 | 0.8367 | ndd | 128  | 100 | 4 | :heavy_check_mark: | 3m |
+|ogbg-molbace| 0.7852 | 0.7337 |  ndd | 128  | 100 | 4 | :heavy_check_mark: | 3m |
+|KIDNEY  | 0.8295  | 0.8931 |  tm1 | 128  | 100 | 3 | :heavy_check_mark: | 27m |
+|BRAIN  |   |   |  tm1 | 128  | 100 | 3 | :heavy_check_mark: |   |
+
+---
 
 # Results: GRAPH2VEC
 
@@ -89,20 +104,6 @@ What is it?
 
 ---
 
-# Results: WLPROB2VEC
-
--  10-fold CV: 90% train, 10% test
-
-|dataset| acc trans.   | acc trans.   | prob | dim | epochs | wl | encodew | elapsed|
-|---|----|---|---|---|----|---|---|--|
-|MUTAG  | 84.01 |     |   |   |   |
-|PROTEINS|   |    |   |   |   |
-|Mutagenicity    |   |    |   |    |  |
-|ogbg-molbbbp|   |    |  |  |  |
-|ogbg-molbace|   |    |  |  |  |
-|KIDNEY  | 82.95  | 89.31 |  tm1 | 128  | 100 | 3 | :heavy_check_mark: | 27m |
-
----
 
 # Results
 
