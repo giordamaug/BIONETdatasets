@@ -39,7 +39,7 @@ def ogb2tu(dataname, out_dir='.', base = 1, attr_as_label=None, task=0, iszipped
                 f6.write("%d\n"%(g['node_feat'][node,attr_as_label]))
               except:
                 raise Exception("Wrong attribute index as label")
-            else:                        # otherwise, canculate degree and usei it as 'label'
+            else:                        # otherwise, canculate degree and use it as 'label'
               print("Warning: TUD format requires node labels!")
 
         nonodes += g['num_nodes']
