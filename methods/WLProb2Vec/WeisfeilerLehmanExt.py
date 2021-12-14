@@ -52,7 +52,7 @@ class WeisfeilerLehmanExt(object):
         elif self.vertex_label in self.graph.vs.attributes():
            return [v[self.vertex_label] for v in ig.VertexSeq(self.graph)]
         else:
-           raise Exception('The graph does not have the provided vertex label (option -A)')
+           raise Exception('The graph does not have the provided vertex label')
 
     def _set_features(self):
         """

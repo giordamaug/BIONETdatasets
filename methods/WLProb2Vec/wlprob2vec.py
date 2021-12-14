@@ -204,7 +204,7 @@ class wlprob2vec:
         if gensimversion >= "4":
             embedding_list = [self.model.infer_vector(doc,epochs=0,alpha=self.learning_rate) for doc in documents]
         else:
-            embedding_list = [self.model.infer_vector(doc,steps=0,alpha=self.learning_rate) for doc in documents]
+            embedding_list = [self.model.infer_vector(doc,epochs=0,alpha=self.learning_rate) for doc in documents]
         return embedding_list
 
 
