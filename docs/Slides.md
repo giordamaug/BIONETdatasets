@@ -85,7 +85,7 @@ What is it?
 |ogbg-molbbbp| 0.8573 | 0.8367 | ndd | 128  | 100 | 4 | :heavy_check_mark: | 3m |
 |ogbg-molbace| 0.7852 | 0.7337 |  ndd | 128  | 100 | 4 | :heavy_check_mark: | 3m |
 |KIDNEY  | 0.8295  | 0.8931 |  tm1 | 128  | 100 | 3 | :heavy_check_mark: | 27m |
-|BRAIN  | 0.9572 |   |  tm1 | 128  | 100 | 3 | :heavy_check_mark: |   |
+|BRAIN  | 0.9572 | 0.909 |  tm1 | 128  | 100 | 3 | :heavy_check_mark: | 7h37m43s  |
 
 ---
 
