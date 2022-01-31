@@ -78,28 +78,29 @@ class MyGMLDataset(Dataset):
         # Node features
         x_list = []
         e_list = []
-        a_list = []
+        a_e_list = []
         graphs = []
         for f in tq.tqdm(filenames[0:self.upto]): 
             if f.endswith('graphml'):
                 g = ig.load(os.path.join(self.datapath,self.name, 'graphml',f))
                 graphs += [g]
+                n = g.vcount()
                 if 'name' not in g.attributes(): g['name'] = os.path.splitext(f)[0]
                 node_attributes = g.vs.attributes()
                 if 'id' in node_attributes: node_attributes.remove('id') 
                 edge_attributes = g.es.attributes() 
                 if 'id' in edge_attributes: edge_attributes.remove('id')
-                a_list.append(np.array(g.get_adjacency().data))
+                edge_index = np.array(g.get_edgelist())
+                a = np.array(g.get_adjacency())
                 x_labs = np.empty((g.vcount(),0))
                 e_labs = np.empty((g.ecount(),0))
                 if node_attributes==[]:
                     if self.force_degree:
-                        for a,n in zip(a_list, n_nodes):
-                            degree = a.sum(1).astype(int)
-                            degree = np.array(degree).reshape(-1)
-                            max_degree = degree.max()
-                            degree = one_hot(degree, max_degree + 1)
-                            x_list.append(degree)
+                        degree = a.sum(1).astype(int)
+                        degree = np.array(degree).reshape(-1)
+                        max_degree = degree.max()
+                        degree = one_hot(degree, max_degree + 1)
+                        x_list.append(degree)
                     else:
                         print(
                             "WARNING: this dataset doesn't have node attributes."
@@ -116,13 +117,25 @@ class MyGMLDataset(Dataset):
                         )
                         x_labs = np.concatenate((x_labs, xm), axis=1)
                     x_list.append(x_labs)
-                for eattr in edge_attributes:
-                    em = np.array([g.es.get_attribute_values(eattr)])
-                    em = np.concatenate(
-                        [_normalize(el_[:, None], "ohe") for el_ in em], -1
-                    )
-                    e_labs = np.concatenate((e_labs, em), axis=1)
-                e_list.append(e_labs)
+                if edge_attributes!=[]:
+                    for eattr in edge_attributes:
+                        em = np.array([g.es.get_attribute_values(eattr)])
+                        em = np.concatenate(
+                            [_normalize(el_[:, None], "ohe") for el_ in em], -1
+                        )
+                        e_labs = np.concatenate((e_labs, em), axis=1)
+                    e_list.append(e_labs)
+                a_e_list.append(sparse.edge_index_to_matrix(
+                                edge_index=edge_index,
+                                edge_weight=np.ones(edge_index.shape[0]),
+                                edge_features=e_labs,
+                                shape=(n, n),
+                                ))
+
+        if e_list==[]:
+            a_list = a_e_list
+        else:
+            a_list, e_list = list(zip(*a_e_list))
 
         dfl = pd.read_csv(os.path.join(self.datapath,self.name, f'{self.name}.txt'), sep='\t')
         last_column = dfl.iloc[:,[0] + [-1]]
@@ -132,105 +145,7 @@ class MyGMLDataset(Dataset):
         labels = le.transform(np.ravel(labels))
         labels = _normalize(labels[:, None], "ohe")
         assert len(labels) == len(graphs)
-        print(labels.shape)
-
-        # Convert to Graph
-        print("Successfully loaded {}.".format(self.name))
-        return [
-            Graph(x=x, a=a, e=e, y=y)
-            for x, a, e, y in zip(x_list, a_list, e_list, labels)
-        ]
-
-
-        # Read edge lists
-        edges = io.load_txt(fname_template.format("A"), delimiter=",").astype(int) - 1
-        # Remove duplicates and self-loops from edges
-        _, mask = np.unique(edges, axis=0, return_index=True)
-        mask = mask[edges[mask, 0] != edges[mask, 1]]
-        edges = edges[mask]
-        # Split edges into separate edge lists
-        edge_batch_idx = node_batch_index[edges[:, 0]]
-        n_edges = np.bincount(edge_batch_idx)
-        n_edges_cum = np.cumsum(n_edges[:-1])
-        el_list = np.split(edges - n_nodes_cum[edge_batch_idx, None], n_edges_cum)
-
-        # Node features
-        x_list = []
-        if "node_attributes" in available:
-            x_attr = io.load_txt(
-                fname_template.format("node_attributes"), delimiter=","
-            )
-            if x_attr.ndim == 1:
-                x_attr = x_attr[:, None]
-            x_list.append(x_attr)
-        if "node_labels" in available:
-            x_labs = io.load_txt(fname_template.format("node_labels"))
-            if x_labs.ndim == 1:
-                x_labs = x_labs[:, None]
-            x_labs = np.concatenate(
-                [_normalize(xl_[:, None], "ohe") for xl_ in x_labs.T], -1
-            )
-            x_list.append(x_labs)
-        if len(x_list) > 0:
-            x_list = np.concatenate(x_list, -1)
-            x_list = np.split(x_list, n_nodes_cum[1:])
-        else:
-            print(
-                "WARNING: this dataset doesn't have node attributes."
-                "Consider creating manual features before using it with a "
-                "Loader."
-            )
-            x_list = [None] * len(n_nodes)
-
-        # Edge features
-        e_list = []
-        if "edge_attributes" in available:
-            e_attr = io.load_txt(fname_template.format("edge_attributes"), delimiter=",")
-            if e_attr.ndim == 1:
-                e_attr = e_attr[:, None]
-            e_attr = e_attr[mask]
-            e_list.append(e_attr)
-        if "edge_labels" in available:
-            e_labs = io.load_txt(fname_template.format("edge_labels"))
-            if e_labs.ndim == 1:
-                e_labs = e_labs[:, None]
-            e_labs = e_labs[mask]
-            e_labs = np.concatenate(
-                [_normalize(el_[:, None], "ohe") for el_ in e_labs.T], -1
-            )
-            e_list.append(e_labs)
-        if len(e_list) > 0:
-            e_available = True
-            e_list = np.concatenate(e_list, -1)
-            e_list = np.split(e_list, n_edges_cum)
-        else:
-            e_available = False
-            e_list = [None] * len(n_nodes)
-
-        # Create sparse adjacency matrices and re-sort edge attributes in lexicographic
-        # order
-        a_e_list = [
-            sparse.edge_index_to_matrix(
-                edge_index=el,
-                edge_weight=np.ones(el.shape[0]),
-                edge_features=e,
-                shape=(n, n),
-            )
-            for el, e, n in zip(el_list, e_list, n_nodes)
-        ]
-        if e_available:
-            a_list, e_list = list(zip(*a_e_list))
-        else:
-            a_list = a_e_list
-
-        # Labels
-        if "graph_attributes" in available:
-            labels = io.load_txt(fname_template.format("graph_attributes"))
-        elif "graph_labels" in available:
-            labels = io.load_txt(fname_template.format("graph_labels"))
-            labels = _normalize(labels[:, None], "ohe")
-        else:
-            raise ValueError("No labels available for dataset {}".format(self.name))
+        print(a_list)
 
         # Convert to Graph
         print("Successfully loaded {}.".format(self.name))
